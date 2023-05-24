@@ -1,0 +1,33 @@
+image: golang:1.16
+
+variables:
+  ZIP_FILENAME: lambda-package.zip
+
+stages:
+  - build
+  - package
+  - deploy
+
+before_script:
+  - go mod download
+
+build:
+  stage: build
+  script:
+    - go build -o main
+
+package:
+  stage: package
+  script:
+    - zip $ZIP_FILENAME main
+
+deploy:
+  stage: deploy
+  image: python:3.7
+  script:
+    - apt-get update && apt-get -y install zip
+    - pip install awscli
+    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+    - aws configure set default.region $AWS_REGION
+    - aws lambda update-function-code --function-name $LAMBDA_FUNCTION_NAME --zip-file fileb://$ZIP_FILENAME
