@@ -14,4 +14,6 @@ deploy:
   before_script:
     - pip install awscli
   script:
-    - aws lambda create-function --function-name $LAMBDA_FUNCTION_NAME --runtime go1.x --role arn:aws:lambda:us-east-1:360833390362:function:GoLambda --zip-file fileb://main
+    - apt-get update && apt-get install -y zip
+    - zip -r $CI_PROJECT_NAME.zip *
+    - aws lambda create-function --function-name $LAMBDA_FUNCTION_NAME --runtime go1.x --role arn:aws:lambda:us-east-1:360833390362:function:GoLambda --zip-file fileb://$CI_PROJECT_NAME.zip
