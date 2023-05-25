@@ -20,7 +20,7 @@ package:
   stage: package
   script:
     - apt-get update && apt-get -y install zip
-    - zip $ZIP_FILENAME main
+    - zip -r $CI_PROJECT_NAME.zip *
 
 deploy:
   stage: deploy
@@ -29,4 +29,4 @@ deploy:
     - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
     - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
     - aws configure set default.region $AWS_REGION
-    - aws lambda update-function-code --function-name $LAMBDA_FUNCTION_NAME --zip-file fileb://$ZIP_FILENAME
+    - aws lambda update-function-code --function-name $LAMBDA_FUNCTION_NAME --zip-file fileb://$CI_PROJECT_NAME.zip
