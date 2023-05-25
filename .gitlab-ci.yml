@@ -1,36 +1,17 @@
-image: golang:1.16
-
-variables:
-  ZIP_FILENAME: lambda-package.zip
-
 stages:
   - build
-  - package
   - deploy
-
-before_script:
-  - go mod download
 
 build:
   stage: build
+  image: golang:latest
   script:
     - go build -o main
 
-package:
-  stage: package
-  script:
-    - apt-get update && apt-get -y install zip
-    - zip -r $CI_PROJECT_NAME.zip *
-
 deploy:
   stage: deploy
-  image:
-    name: amazon/aws-cli:latest
-    entrypoint: [""]
-
+  image: python:3.7
+  before_script:
+    - pip install awscli
   script:
-    - echo "Deploying code"
-    - aws lambda update-function-code --function-name $LAMBDA_FUNCTION_NAME --zip-file fileb://$CI_PROJECT_NAME.zip 
-  needs:
-    - build
-
+    - aws lambda create-function --function-name $LAMBDA_FUNCTION_NAME --runtime go1.x --role arn:aws:lambda:us-east-1:360833390362:function:GoLambda --zip-file fileb://main
