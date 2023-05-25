@@ -5,6 +5,7 @@ variables:
 
 stages:
   - build
+  - package
   - deploy
 
 before_script:
@@ -15,14 +16,17 @@ build:
   script:
     - go build -o main
 
-deploy:
-  stage: deploy
-  image: python:3.7
+package:
+  stage: package
   script:
     - apt-get update && apt-get -y install zip
-    - zip -r $CI_PROJECT_NAME.zip *
-    - pip install awscli
+    - zip $ZIP_FILENAME main
+
+deploy:
+  stage: deploy
+  image: amazon/aws-cli:latest
+  script:
     - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
     - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
     - aws configure set default.region $AWS_REGION
-    - aws lambda update-function-code --function-name $LAMBDA_FUNCTION_NAME --zip-file fileb://$CI_PROJECT_NAME.zip
+    - aws lambda update-function-code --function-name $LAMBDA_FUNCTION_NAME --zip-file fileb://$ZIP_FILENAME
