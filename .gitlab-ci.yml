@@ -24,9 +24,11 @@ package:
 
 deploy:
   stage: deploy
-  image: amazon/aws-cli:latest
+  image:
+    name: amazon/aws-cli:latest
+    entrypoint: [""]
+
   script:
-    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-    - aws configure set default.region $AWS_REGION
+    - echo "Deploying code"
     - aws lambda update-function-code --function-name $LAMBDA_FUNCTION_NAME --zip-file fileb://$CI_PROJECT_NAME.zip
+
